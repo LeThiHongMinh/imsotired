@@ -3,7 +3,6 @@ Rails.application.routes.draw do
   resources :discussions do
     resources :comments 
   end 
-  resource :users, only: [:create]
-  post "/login", to: "users#login"
-  get "/auto_login", to: "users#auto_login"
+  resource :registration
+  resource :session
 end
