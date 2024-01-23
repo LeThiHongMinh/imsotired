@@ -1,33 +1,55 @@
 class ApplicationController < ActionController::API
-        before_action :authorized
+  before_action :authenticate_user!, except: [:new, :create]
+
+  private
+
+  def authenticate_user!
+    unless current_user
+      render json: { error: 'Unauthorized' }, status: :unauthorized
+    end
+  end
+
+  def current_user
+    @current_user ||= authenticate_user_from_token
+  end
+  helper_method :current_user
+
+  def authenticate_user_from_token
+    user_id = decoded_token&.fetch('user_id', nil)
+    User.find_by(id: user_id) if user_id
+  end
+
+  def user_signed_in?
+    current_user.present?
+  end
+  helper_method :user_signed_in?
+
+  def login(user)
+    @current_user = user
+    session[:user_id] = user.id
+  end
+
+  def logout
+    @current_user = nil
+    reset_session
+  end
+
   def encode_token(payload)
     JWT.encode(payload, 'yourSecret')
   end
+
   def auth_header
-    # { Authorization: 'Bearer <token>' }
     request.headers['Authorization']
   end
+
   def decoded_token
     if auth_header
-      token = auth_header.split(' ')[1]
-      # header: { 'Authorization': 'Bearer <token>' }
+      token = auth_header.split(' ').last
       begin
         JWT.decode(token, 'yourSecret', true, algorithm: 'HS256')
       rescue JWT::DecodeError
         nil
       end
     end
-  end
-  def logged_in_user
-    if decoded_token
-      user_id = decoded_token[0]['user_id']
-      @user = User.find_by(id: user_id)
-    end
-  end
-  def logged_in?
-    !!logged_in_user
-  end
-  def authorized
-    render json: { message: 'Please log in' }, status: :unauthorized unless logged_in?
   end
 end
