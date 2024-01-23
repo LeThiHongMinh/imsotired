@@ -12,7 +12,6 @@ class ApplicationController < ActionController::API
   def current_user
     @current_user ||= authenticate_user_from_token
   end
-  helper_method :current_user
 
   def authenticate_user_from_token
     user_id = decoded_token&.fetch('user_id', nil)
@@ -22,7 +21,6 @@ class ApplicationController < ActionController::API
   def user_signed_in?
     current_user.present?
   end
-  helper_method :user_signed_in?
 
   def login(user)
     @current_user = user
