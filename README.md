@@ -22,4 +22,6 @@ Things you may want to cover:
 * Deployment instructions
 
 * ...
-# imsotired
+This is the backend part of the Discussion Forum app.
+The frontend code part is here: https://github.com/LeThiHongMinh/frontend
+
